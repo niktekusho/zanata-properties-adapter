@@ -56,24 +56,48 @@ export const questions = [
         message: "Select the language",
         choices: [
             {
-                name: "French",
+                name: "French (fr)",
                 value: "fr",
             },
             {
-                name: "English",
+                name: "French (fr-FR)",
+                value: "fr-FR",
+            },
+            {
+                name: "English (en-US)",
+                value: "en-US",
+            },
+            {
+                name: "English (en-GB)",
+                value: "en-GB",
+            },
+            {
+                name: "English (en)",
                 value: "en",
             },
             {
-                name: "German",
+                name: "German (de)",
                 value: "de",
             },
             {
-                name: "Italian",
+                name: "German (de-DE)",
+                value: "de-DE",
+            },
+            {
+                name: "Italian (it-IT)",
+                value: "it-IT",
+            },
+            {
+                name: "Italian (it)",
                 value: "it",
             },
             {
-                name: "Spanish",
+                name: "Spanish (es)",
                 value: "es",
+            },
+            {
+                name: "Spanish (es-ES)",
+                value: "es-ES",
             },
         ]
     }

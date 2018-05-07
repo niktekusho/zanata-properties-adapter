@@ -112,6 +112,7 @@ export async function writeProperties(docName: string, properties: string) {
             if (err) {
                 reject(err);
             } else {
+                console.log(`File ${filePath} successfully written`);
                 resolve();
             }
         });
