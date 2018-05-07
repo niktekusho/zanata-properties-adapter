@@ -13,3 +13,12 @@ export type ZanataIni = {
     username: string,
     apiKey: string,
 };
+
+export type ZanataTranslations = {
+    textFlowTargets: ZanataTranslation[]
+};
+
+export type ZanataTranslation = {
+    resId: string,
+    content: string,
+};

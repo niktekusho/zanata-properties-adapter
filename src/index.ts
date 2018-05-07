@@ -3,8 +3,8 @@ import { getTranslations, checkZanataIni } from "./utils";
 import { questions, nonLoginQuestions } from "./questions";
 import { ZanataIni } from "./types";
 
-function prompt(questions: inquirer.Questions, zanataIni?: ZanataIni) {
-    inquirer.prompt(questions).then((answers: inquirer.Answers) => {
+function prompt(questions: inquirer.Questions, zanataIni?: ZanataIni): Promise<void> {
+    return inquirer.prompt(questions).then((answers: inquirer.Answers) => {
         console.log(answers);
         return getTranslations({
             apiKey: zanataIni != undefined ? zanataIni.apiKey : answers.apiKey,
@@ -18,9 +18,7 @@ function prompt(questions: inquirer.Questions, zanataIni?: ZanataIni) {
     }).catch(err => console.error(err));
 }
 
-checkZanataIni().then(zanataIni => {
-    console.log("ooo");
-    prompt(nonLoginQuestions, zanataIni);
-}).catch(err => {
-    prompt(questions);
-});
+checkZanataIni()
+    .then(zanataIni => prompt(nonLoginQuestions, zanataIni))
+    .catch(err => prompt(questions))
+    .then(() => setTimeout(() => console.log("Bye!"), 5000));
