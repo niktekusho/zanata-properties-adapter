@@ -1,8 +1,9 @@
 import * as nodefetch from "node-fetch";
-import { RequestObject, ZanataIni, ZanataTranslations, ZanataTranslation } from "../types";
 import { readFile, writeFile } from "fs";
 import { homedir, EOL } from "os";
 import { resolve } from "path";
+
+import { api, types } from "zanata-api-js";
 
 // TODO FIX NODE-nodefetch.default IMPORT BUG/GLITCH
 
@@ -14,53 +15,35 @@ export function isEmpty(variable: string, input: string): string|boolean {
 }
 
 export async function validateUrl(url: string): Promise<boolean> {
-    return nodefetch.default(url + "projects").then(response => {
-        return true;
-    }).catch(error => {
+    const { projects } = api;
+    return projects.get(url).then(projects => true).catch(error => {
         console.error(error);
         return false;
     });
 }
 
 export async function validateProjectID(url: string, projectID: string): Promise<boolean> {
-    return nodefetch.default(`${url}/projects/p/${projectID}`).then(response => {
-        return true;
-    }).catch(error => {
+    const { project } = api;
+    return project.get(url, projectID).then(project => true).catch(error => {
         console.error(error);
         return false;
     });
 }
 
 export async function validateVersionID(url: string, projectID: string, versionID: string): Promise<boolean> {
-    return nodefetch.default(`${url}/projects/p/${projectID}/iterations/i/${versionID}`).then(response => {
-        return true;
-    }).catch(error => {
-        console.error(error);
-        return false;
+    const { iteration } = api;
+    return iteration.get(url, projectID, versionID).then(response => true)
+        .catch(error => {
+            console.error(error);
+            return false;
     });
 }
 
-export async function getTranslations(object: RequestObject): Promise<void> {
-    const url = `${object.url}/rest/projects/p/${object.projectID}/iterations/i/${object.versionID}/r/${object.documentName}/translations/${object.languageCode}`;
-
-    console.log(`Contacting ${url}`);
-
-    const header = new nodefetch.Headers();
-    header.append("X-Auth-User", object.username);
-    header.append("X-Auth-Token", object.apiKey);
-    header.append("Accept", "application/json");
-
+export async function getTranslations(serverUrl: string, object: api.document.DocRequest, language: string): Promise<void> {
     const ext = ".properties";
-    const outputFileName = object.documentName.endsWith(ext) ? object.documentName : object.documentName + ext;
+    const outputFileName = object.documentID.endsWith(ext) ? object.documentID : object.documentID + ext;
 
-    return nodefetch.default(url, { headers: header })
-        .then((res: nodefetch.Response) => {
-            if (res.ok) {
-                return res.json();
-            }
-            throw new Error(`${res.statusText}${EOL}${res.body.read()}`);
-        })
-        .then(json => adaptTranslations(json))
+    return api.document.getDocumentTranslation(serverUrl, object, language)
         .then(translations => generatePropertiesString(translations))
         .then(properties => writeProperties(outputFileName, properties))
         .catch(error => console.error("Error downloading translations, for more info check the log below.", error));
@@ -68,10 +51,10 @@ export async function getTranslations(object: RequestObject): Promise<void> {
 
 export const ZANATA_INI_PATH = resolve(homedir(), ".zanata-properties-adapter", "zanata.ini");
 
-export async function parseZanataIni(file: string): Promise<ZanataIni> {
-    return new Promise<ZanataIni>((resolve) => {
+export async function parseZanataIni(file: string): Promise<types.ZanataIni> {
+    return new Promise<types.ZanataIni>((resolve) => {
         const lines = file.split(/\r\n|\r|\n/);
-        const zanataIni: ZanataIni = {
+        const zanataIni: types.ZanataIni = {
             url: "",
             apiKey: "",
             username: "",
@@ -89,13 +72,7 @@ export async function parseZanataIni(file: string): Promise<ZanataIni> {
     });
 }
 
-export async function adaptTranslations(json: ZanataTranslations): Promise<ZanataTranslations> {
-    return new Promise<ZanataTranslations>((resolve) => {
-        resolve(json);
-    });
-}
-
-export async function generatePropertiesString(translations: ZanataTranslations): Promise<string> {
+export async function generatePropertiesString(translations: types.ZanataTranslationResponse): Promise<string> {
     return new Promise<string>((resolve) => {
         let propertiesString = "";
         for (const translation of translations.textFlowTargets) {
@@ -119,9 +96,9 @@ export async function writeProperties(docName: string, properties: string) {
     });
 }
 
-export async function checkZanataIni(): Promise<ZanataIni> {
+export async function checkZanataIni(): Promise<types.ZanataIni> {
     // TODO use promisified version of readFile
-    return new Promise<ZanataIni>((resolve, reject) => {
+    return new Promise<types.ZanataIni>((resolve, reject) => {
         readFile(ZANATA_INI_PATH, { encoding: "utf8" }, (err, file) => {
             if (err) {
                 console.warn(`zanata.ini not found at ${ZANATA_INI_PATH}`);

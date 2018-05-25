@@ -1097,3 +1097,9 @@ wordwrap@~1.0.0:
 wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
+
+zanata-api-js@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/zanata-api-js/-/zanata-api-js-1.0.0.tgz#11c77032a2216200ee166bef5635aefbb2ab980c"
+  dependencies:
+    node-fetch "^2.1.2"

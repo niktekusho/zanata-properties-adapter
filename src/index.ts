@@ -1,20 +1,17 @@
 import * as inquirer from "inquirer";
 import { getTranslations, checkZanataIni } from "./utils";
 import { questions, nonLoginQuestions } from "./questions";
-import { ZanataIni } from "./types";
+import { types } from "zanata-api-js";
 
-function prompt(questions: inquirer.Questions, zanataIni?: ZanataIni): Promise<void> {
+function prompt(questions: inquirer.Questions, zanataIni?: types.ZanataIni): Promise<void> {
     return inquirer.prompt(questions).then((answers: inquirer.Answers) => {
-        console.log(answers);
-        return getTranslations({
-            apiKey: zanataIni != undefined ? zanataIni.apiKey : answers.apiKey,
-            documentName: answers.document,
-            languageCode: answers.language,
+        // console.log(answers);
+        const url = zanataIni != undefined ? zanataIni.url : answers.url;
+        return getTranslations(url, {
+            documentID: answers.document,
             projectID: answers.project,
-            url: zanataIni != undefined ? zanataIni.url : answers.url,
-            username: zanataIni != undefined ? zanataIni.username : answers.username,
-            versionID: answers.version,
-        });
+            iterationID: answers.version,
+        }, answers.language);
     }).catch(err => console.error(err));
 }
 

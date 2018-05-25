@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/node-fetch": "^1.6.9",
     "inquirer": "^5.2.0",
-    "node-fetch": "^2.1.2"
+    "node-fetch": "^2.1.2",
+    "zanata-api-js": "^1.0.0"
   }
 }
